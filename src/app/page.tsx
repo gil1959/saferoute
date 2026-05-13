@@ -1,65 +1,56 @@
-import Image from "next/image";
+import MapComponent from "@/components/map";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="relative flex-1 flex">
+      {/* Background Map */}
+      <MapComponent />
+      
+      {/* Floating UI Panel for Route Search (FR-001) */}
+      <div className="absolute top-8 left-8 w-96 bg-[var(--surface-card)] border border-[var(--hairline)] flex flex-col z-10 shadow-2xl">
+        <div className="p-6 border-b border-[var(--hairline)]">
+          <h1 className="display-sm mb-2 text-white">SAFEROUTE</h1>
+          <p className="body-sm text-[var(--muted)]">Navigasi cerdas, mengutamakan keselamatan Anda.</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+        
+        <div className="p-6 space-y-4">
+          <div>
+            <label className="caption text-[var(--body)] block mb-2">LOKASI AWAL</label>
+            <input 
+              type="text" 
+              className="w-full bg-[var(--surface-soft)] border border-[var(--hairline)] text-white body-md px-4 py-3 focus:outline-none focus:border-white transition-colors rounded-none"
+              placeholder="Masukkan lokasi awal..."
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </div>
+          <div>
+            <label className="caption text-[var(--body)] block mb-2">TUJUAN</label>
+            <input 
+              type="text" 
+              className="w-full bg-[var(--surface-soft)] border border-[var(--hairline)] text-white body-md px-4 py-3 focus:outline-none focus:border-white transition-colors rounded-none"
+              placeholder="Masukkan tujuan..."
+            />
+          </div>
+          <button className="btn-primary w-full mt-4">
+            CARI RUTE AMAN
+          </button>
         </div>
-      </main>
+        
+        {/* Mock Result Panel */}
+        <div className="p-6 bg-[var(--surface-soft)] border-t border-[var(--hairline)]">
+          <h3 className="title-sm mb-4 text-white">RUTE TERBAIK</h3>
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="display-md text-[var(--success)]">24<span className="title-sm text-[var(--body)] ml-1">mnt</span></p>
+              <p className="caption text-[var(--muted)] mt-1">12 km • 0 Insiden Dihindari</p>
+            </div>
+            <div className="text-right">
+              <span className="inline-block px-2 py-1 bg-[var(--success)]/20 text-[var(--success)] text-xs font-bold uppercase tracking-wider">
+                PALING AMAN
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

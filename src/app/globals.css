@@ -1,26 +1,172 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --canvas: #000000;
+  --surface-card: #1a1a1a;
+  --surface-elevated: #262626;
+  --surface-soft: #0d0d0d;
+  --primary: #ffffff;
+  --body: #bbbbbb;
+  --body-strong: #e6e6e6;
+  --muted: #7e7e7e;
+  --hairline: #3c3c3c;
+  --hairline-strong: #262626;
+  
+  --m-blue-light: #0066b1;
+  --m-blue-dark: #1c69d4;
+  --m-red: #e22718;
+  --electric-blue: #0653b6;
+  --carbon-gray: #2b2b2b;
+  
+  --warning: #f4b400;
+  --success: #0fa336;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-canvas: var(--canvas);
+  --color-surface-card: var(--surface-card);
+  --color-surface-elevated: var(--surface-elevated);
+  --color-surface-soft: var(--surface-soft);
+  --color-primary: var(--primary);
+  --color-body: var(--body);
+  --color-body-strong: var(--body-strong);
+  --color-muted: var(--muted);
+  --color-hairline: var(--hairline);
+  --color-hairline-strong: var(--hairline-strong);
+  
+  --color-m-blue-light: var(--m-blue-light);
+  --color-m-blue-dark: var(--m-blue-dark);
+  --color-m-red: var(--m-red);
+  --color-electric-blue: var(--electric-blue);
+  --color-carbon-gray: var(--carbon-gray);
+  
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+
+  /* Font configuration */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: 'Inter', sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Force dark mode canvas as per DESIGN.md (no light mode) */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--canvas);
+  color: var(--primary);
+  font-family: var(--font-sans);
+  font-weight: 300; /* Default body is light */
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Utility classes for typography matching DESIGN.md */
+.display-xl {
+  font-size: 80px;
+  font-weight: 700;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.display-lg {
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+.display-md {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.display-sm {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.title-lg {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.title-md {
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.title-sm {
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.label-uppercase {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.body-md {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+.body-sm {
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.5;
+}
+
+.caption {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+}
+
+.nav-link {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.5px;
+}
+
+/* Base button class based on DESIGN.md */
+.btn-primary {
+  background-color: var(--canvas);
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-radius: 0;
+  padding: 16px 32px;
+  height: 48px;
+  border: 1px solid var(--primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary);
+  color: var(--canvas);
+}
+
+.m-stripe-divider {
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(to right, var(--m-blue-light) 33.33%, var(--m-blue-dark) 33.33% 66.66%, var(--m-red) 66.66%);
 }

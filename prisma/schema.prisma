@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id       Int       @id @default(autoincrement())
+  username      String    @db.VarChar(50) @unique
+  email         String    @db.VarChar(100) @unique
+  password_hash String    @db.VarChar(255)
+  full_name     String    @db.VarChar(100)
+  role          Role      @default(public)
+  is_active     Boolean   @default(true)
+  created_at    DateTime  @default(now())
+  last_login    DateTime?
+
+  reports_reported  Incident[] @relation("ReportedIncidents")
+  reports_validated Incident[] @relation("ValidatedIncidents")
+  reports           Report[]
+  route_searches    RouteSearch[]
+  system_configs    SystemConfig[]
+  audit_logs        AuditLog[]
+
+  @@map("users")
+}
+
+enum Role {
+  public
+  admin
+}
+
+model Incident {
+  incident_id    Int             @id @default(autoincrement())
+  title          String          @db.VarChar(200)
+  category       IncidentCategory
+  severity       Severity        @default(medium)
+  // location_point POINT SRID 4326 will be added via raw SQL migration
+  latitude       Decimal         @db.Decimal(10, 8)
+  longitude      Decimal         @db.Decimal(11, 8)
+  source         Source
+  status         IncidentStatus  @default(active)
+  danger_radius  Int             @db.SmallInt @default(50)
+  penalty_score  Int             @db.TinyInt @default(10)
+  expires_at     DateTime?
+  
+  reported_by    Int?            @db.UnsignedInt
+  validated_by   Int?            @db.UnsignedInt
+
+  reporter       User?           @relation("ReportedIncidents", fields: [reported_by], references: [user_id])
+  validator      User?           @relation("ValidatedIncidents", fields: [validated_by], references: [user_id])
+  reports        Report[]
+
+  @@index([status])
+  @@index([expires_at])
+  @@map("incidents")
+}
+
+enum IncidentCategory {
+  crime
+  accident
+  road_damage
+  traffic
+  other
+}
+
+enum Severity {
+  low
+  medium
+  high
+  critical
+}
+
+enum Source {
+  tomtom
+  scraping
+  crowdsource
+  admin
+}
+
+enum IncidentStatus {
+  active
+  expired
+  rejected
+  resolved
+}
+
+model Report {
+  report_id    Int          @id @default(autoincrement())
+  user_id      Int
+  incident_id  Int?
+  category     ReportCategory
+  title        String       @db.VarChar(200)
+  description  String       @db.Text
+  latitude     Decimal      @db.Decimal(10, 8)
+  longitude    Decimal      @db.Decimal(11, 8)
+  status       ReportStatus @default(pending)
+  admin_notes  String?      @db.Text
+  
+  user         User         @relation(fields: [user_id], references: [user_id])
+  incident     Incident?    @relation(fields: [incident_id], references: [incident_id])
+  photos       ReportPhoto[]
+
+  @@map("reports")
+}
+
+enum ReportCategory {
+  crime
+  accident
+  road_damage
+  traffic
+  other
+}
+
+enum ReportStatus {
+  pending
+  processing
+  resolved
+  rejected
+}
+
+model ReportPhoto {
+  photo_id    Int      @id @default(autoincrement())
+  report_id   Int
+  photo_url   String   @db.VarChar(500)
+  file_size   Int      @db.UnsignedInt
+  mime_type   String   @db.VarChar(50)
+  uploaded_at DateTime @default(now())
+
+  report      Report   @relation(fields: [report_id], references: [report_id])
+
+  @@map("report_photos")
+}
+
+model RouteSearch {
+  search_id         Int      @id @default(autoincrement())
+  user_id           Int
+  origin_lat        Decimal  @db.Decimal(10, 8)
+  origin_lng        Decimal  @db.Decimal(11, 8)
+  dest_lat          Decimal  @db.Decimal(10, 8)
+  dest_lng          Decimal  @db.Decimal(11, 8)
+  // route_geometry LINESTRING will be added via raw SQL migration if needed
+  penalty_score     Int      @db.SmallInt
+  incidents_avoided Int      @db.TinyInt
+  distance_meters   Int
+  duration_seconds  Int
+  searched_at       DateTime @default(now())
+
+  user              User     @relation(fields: [user_id], references: [user_id])
+
+  @@map("route_searches")
+}
+
+model SystemConfig {
+  config_id    Int      @id @default(autoincrement())
+  config_key   String   @db.VarChar(100) @unique
+  config_value String   @db.VarChar(500)
+  data_type    ConfigDataType
+  category     ConfigCategory
+  updated_by   Int
+  updated_at   DateTime @default(now()) @updatedAt
+
+  updater      User     @relation(fields: [updated_by], references: [user_id])
+
+  @@map("system_config")
+}
+
+enum ConfigDataType {
+  string
+  number
+  boolean
+  json
+  enum
+}
+
+enum ConfigCategory {
+  routing
+  app
+  notification
+  admin
+  other
+}
+
+model AuditLog {
+  log_id        BigInt   @id @default(autoincrement())
+  user_id       Int
+  action        String   @db.VarChar(100)
+  resource_type String   @db.VarChar(50)
+  resource_id   Int      @db.UnsignedInt
+  old_values    Json?
+  new_values    Json?
+  ip_address    String?  @db.VarChar(45)
+  created_at    DateTime @default(now())
+
+  user          User     @relation(fields: [user_id], references: [user_id])
+
+  @@map("audit_logs")
+}
