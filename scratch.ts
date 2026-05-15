@@ -1,0 +1,1 @@
+import { PrismaClient } from '@prisma/client'; const prisma = new PrismaClient(); async function main() { const incs = await prisma.incident.findMany({ where: { source: 'scraping' }}); console.log('Incidents:', incs.length); const users = await prisma.user.findMany(); console.log('Users:', users.length); } main().finally(() => prisma.$disconnect());

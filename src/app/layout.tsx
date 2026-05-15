@@ -10,8 +10,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SafeRoute | Smart City Navigation",
-  description: "SafeRoute is a Smart City Navigation & Safety Platform focused on prioritizing user safety over speed.",
+  title: "SafeRoute | Navigasi Kota Aman",
+  description:
+    "SafeRoute — platform navigasi dan keamanan kota cerdas yang mengutamakan keselamatan pengguna.",
 };
 
 export default function RootLayout({
@@ -20,14 +21,31 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="id"
-      className={`${inter.variable} antialiased bg-black text-white h-full`}
-    >
-      <body className="min-h-full flex flex-col font-sans font-light">
+    <html lang="id" className={inter.variable}>
+      <body
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          backgroundColor: "var(--canvas)",
+          color: "var(--primary)",
+          fontFamily: "var(--font-sans)",
+          fontWeight: 300,
+          margin: 0,
+          padding: 0,
+        }}
+      >
         <TopNav />
-        <div className="m-stripe-divider"></div>
-        <main className="flex-1 flex flex-col relative">
+        <div className="m-stripe-divider" />
+        <main
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            position: "relative",
+            minHeight: 0,
+          }}
+        >
           {children}
         </main>
       </body>

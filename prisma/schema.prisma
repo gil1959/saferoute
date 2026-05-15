@@ -3,23 +3,30 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider     = "mysql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 model User {
-  user_id       Int       @id @default(autoincrement())
-  username      String    @db.VarChar(50) @unique
-  email         String    @db.VarChar(100) @unique
-  password_hash String    @db.VarChar(255)
-  full_name     String    @db.VarChar(100)
-  role          Role      @default(public)
-  is_active     Boolean   @default(true)
-  created_at    DateTime  @default(now())
-  last_login    DateTime?
+  user_id          Int       @id @default(autoincrement())
+  username         String    @db.VarChar(50) @unique
+  email            String    @db.VarChar(100) @unique
+  phone            String?   @db.VarChar(20) @unique
+  password_hash    String    @db.VarChar(255)
+  full_name        String    @db.VarChar(100)
+  role             Role      @default(public)
+  is_active        Boolean   @default(true)
+  email_verified   Boolean   @default(false)
+  verify_code      String?   @db.VarChar(10)
+  verify_expires   DateTime?
+  reset_token      String?   @db.VarChar(128)
+  reset_expires    DateTime?
+  created_at       DateTime  @default(now())
+  last_login       DateTime?
 
-  reports_reported  Incident[] @relation("ReportedIncidents")
-  reports_validated Incident[] @relation("ValidatedIncidents")
+  reports_reported  Incident[]    @relation("ReportedIncidents")
+  reports_validated Incident[]    @relation("ValidatedIncidents")
   reports           Report[]
   route_searches    RouteSearch[]
   system_configs    SystemConfig[]
@@ -34,28 +41,29 @@ enum Role {
 }
 
 model Incident {
-  incident_id    Int             @id @default(autoincrement())
-  title          String          @db.VarChar(200)
+  incident_id    Int              @id @default(autoincrement())
+  title          String           @db.VarChar(200)
   category       IncidentCategory
-  severity       Severity        @default(medium)
-  // location_point POINT SRID 4326 will be added via raw SQL migration
-  latitude       Decimal         @db.Decimal(10, 8)
-  longitude      Decimal         @db.Decimal(11, 8)
+  severity       Severity         @default(medium)
+  latitude       Decimal          @db.Decimal(10, 8)
+  longitude      Decimal          @db.Decimal(11, 8)
   source         Source
-  status         IncidentStatus  @default(active)
-  danger_radius  Int             @db.SmallInt @default(50)
-  penalty_score  Int             @db.TinyInt @default(10)
+  status         IncidentStatus   @default(active)
+  danger_radius  Int              @db.SmallInt @default(50)
+  penalty_score  Int              @db.TinyInt  @default(10)
   expires_at     DateTime?
-  
-  reported_by    Int?            @db.UnsignedInt
-  validated_by   Int?            @db.UnsignedInt
 
-  reporter       User?           @relation("ReportedIncidents", fields: [reported_by], references: [user_id])
-  validator      User?           @relation("ValidatedIncidents", fields: [validated_by], references: [user_id])
+  reported_by    Int?             @db.UnsignedInt
+  validated_by   Int?             @db.UnsignedInt
+
+  reporter       User?            @relation("ReportedIncidents", fields: [reported_by], references: [user_id])
+  validator      User?            @relation("ValidatedIncidents", fields: [validated_by], references: [user_id])
   reports        Report[]
 
   @@index([status])
   @@index([expires_at])
+  @@index([reported_by])
+  @@index([validated_by])
   @@map("incidents")
 }
 
@@ -89,21 +97,23 @@ enum IncidentStatus {
 }
 
 model Report {
-  report_id    Int          @id @default(autoincrement())
+  report_id    Int            @id @default(autoincrement())
   user_id      Int
   incident_id  Int?
   category     ReportCategory
-  title        String       @db.VarChar(200)
-  description  String       @db.Text
-  latitude     Decimal      @db.Decimal(10, 8)
-  longitude    Decimal      @db.Decimal(11, 8)
-  status       ReportStatus @default(pending)
-  admin_notes  String?      @db.Text
-  
-  user         User         @relation(fields: [user_id], references: [user_id])
-  incident     Incident?    @relation(fields: [incident_id], references: [incident_id])
+  title        String         @db.VarChar(200)
+  description  String         @db.Text
+  latitude     Decimal        @db.Decimal(10, 8)
+  longitude    Decimal        @db.Decimal(11, 8)
+  status       ReportStatus   @default(pending)
+  admin_notes  String?        @db.Text
+
+  user         User           @relation(fields: [user_id], references: [user_id])
+  incident     Incident?      @relation(fields: [incident_id], references: [incident_id])
   photos       ReportPhoto[]
 
+  @@index([user_id])
+  @@index([incident_id])
   @@map("reports")
 }
 
@@ -132,6 +142,7 @@ model ReportPhoto {
 
   report      Report   @relation(fields: [report_id], references: [report_id])
 
+  @@index([report_id])
   @@map("report_photos")
 }
 
@@ -142,7 +153,6 @@ model RouteSearch {
   origin_lng        Decimal  @db.Decimal(11, 8)
   dest_lat          Decimal  @db.Decimal(10, 8)
   dest_lng          Decimal  @db.Decimal(11, 8)
-  // route_geometry LINESTRING will be added via raw SQL migration if needed
   penalty_score     Int      @db.SmallInt
   incidents_avoided Int      @db.TinyInt
   distance_meters   Int
@@ -151,20 +161,22 @@ model RouteSearch {
 
   user              User     @relation(fields: [user_id], references: [user_id])
 
+  @@index([user_id])
   @@map("route_searches")
 }
 
 model SystemConfig {
-  config_id    Int      @id @default(autoincrement())
-  config_key   String   @db.VarChar(100) @unique
-  config_value String   @db.VarChar(500)
+  config_id    Int            @id @default(autoincrement())
+  config_key   String         @db.VarChar(100) @unique
+  config_value String         @db.VarChar(500)
   data_type    ConfigDataType
   category     ConfigCategory
   updated_by   Int
-  updated_at   DateTime @default(now()) @updatedAt
+  updated_at   DateTime       @default(now()) @updatedAt
 
-  updater      User     @relation(fields: [updated_by], references: [user_id])
+  updater      User           @relation(fields: [updated_by], references: [user_id])
 
+  @@index([updated_by])
   @@map("system_config")
 }
 
@@ -197,5 +209,6 @@ model AuditLog {
 
   user          User     @relation(fields: [user_id], references: [user_id])
 
+  @@index([user_id])
   @@map("audit_logs")
 }
